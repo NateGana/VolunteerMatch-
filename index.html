@@ -1,0 +1,1690 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>VolunteerMatch — Smart Volunteer & Cause Matcher</title>
+<style>
+  /* ============================================================
+     ROOT VARIABLES — Emerald & Deep Teal Theme
+  ============================================================ */
+  :root{
+    --bg-deep: #0A192F;
+    --bg-panel: #112240;
+    --bg-panel-light: #17305a;
+    --border-soft: #1f3a63;
+    --emerald: #10B981;
+    --emerald-dark: #0b8f66;
+    --cyan: #06B6D4;
+    --gold: #F59E0B;
+    --text-main: #E6F1FF;
+    --text-dim: #8892b0;
+    --danger: #ef4444;
+    --radius: 14px;
+    --shadow: 0 8px 24px rgba(0,0,0,0.35);
+  }
+
+  *{ box-sizing: border-box; }
+
+  body{
+    margin:0;
+    font-family: 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
+    background: radial-gradient(circle at top left, #0d1f3c, var(--bg-deep) 60%);
+    color: var(--text-main);
+    min-height:100vh;
+    -webkit-font-smoothing:antialiased;
+  }
+
+  a{ color: var(--emerald); }
+
+  /* ============================================================
+     LAYOUT SHELL
+  ============================================================ */
+  .app-shell{
+    max-width: 1280px;
+    margin: 0 auto;
+    padding: 20px 20px 80px;
+  }
+
+  header.top-bar{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    flex-wrap:wrap;
+    gap:14px;
+    padding: 14px 4px 24px;
+    border-bottom: 1px solid var(--border-soft);
+    margin-bottom: 24px;
+  }
+
+  .brand{
+    display:flex;
+    align-items:center;
+    gap:12px;
+  }
+
+  .brand-icon{
+    width:44px;height:44px;
+    border-radius:12px;
+    background: linear-gradient(135deg, var(--emerald), var(--cyan));
+    display:flex;align-items:center;justify-content:center;
+    font-size:22px;
+    box-shadow: 0 4px 14px rgba(16,185,129,0.35);
+  }
+
+  .brand h1{
+    margin:0;
+    font-size:20px;
+    letter-spacing:0.3px;
+  }
+
+  .brand span{
+    display:block;
+    font-size:12px;
+    color: var(--text-dim);
+    font-weight:400;
+  }
+
+  .role-toggle{
+    display:flex;
+    background: var(--bg-panel);
+    border:1px solid var(--border-soft);
+    border-radius: 999px;
+    padding:4px;
+    gap:4px;
+  }
+
+  .role-toggle button{
+    border:none;
+    background:transparent;
+    color: var(--text-dim);
+    padding: 9px 20px;
+    border-radius: 999px;
+    cursor:pointer;
+    font-weight:600;
+    font-size:14px;
+    transition: all 0.2s ease;
+  }
+
+  .role-toggle button.active{
+    background: linear-gradient(135deg, var(--emerald), var(--emerald-dark));
+    color:#03150f;
+    box-shadow: 0 2px 10px rgba(16,185,129,0.4);
+  }
+
+  .header-actions{
+    display:flex;
+    gap:10px;
+  }
+
+  /* ============================================================
+     BUTTONS
+  ============================================================ */
+  button{
+    font-family: inherit;
+  }
+
+  .btn{
+    cursor:pointer;
+    border:none;
+    border-radius:10px;
+    padding:10px 16px;
+    font-weight:600;
+    font-size:13px;
+    transition: transform 0.15s ease, box-shadow 0.15s ease, opacity 0.15s ease;
+    display:inline-flex;
+    align-items:center;
+    gap:6px;
+  }
+  .btn:active{ transform: scale(0.97); }
+
+  .btn-primary{
+    background: linear-gradient(135deg, var(--emerald), var(--emerald-dark));
+    color:#04170f;
+    box-shadow: 0 4px 14px rgba(16,185,129,0.3);
+  }
+  .btn-primary:hover{ box-shadow: 0 6px 18px rgba(16,185,129,0.45); }
+
+  .btn-cyan{
+    background: linear-gradient(135deg, var(--cyan), #0891b2);
+    color:#03191f;
+  }
+
+  .btn-gold{
+    background: linear-gradient(135deg, var(--gold), #b7770a);
+    color:#241300;
+  }
+
+  .btn-ghost{
+    background: var(--bg-panel);
+    color: var(--text-main);
+    border:1px solid var(--border-soft);
+  }
+  .btn-ghost:hover{ border-color: var(--emerald); }
+
+  .btn-danger{
+    background: rgba(239,68,68,0.15);
+    color:#ff9d9d;
+    border:1px solid rgba(239,68,68,0.4);
+  }
+
+  .btn-sm{ padding:7px 12px; font-size:12px; border-radius:8px; }
+  .btn-block{ width:100%; justify-content:center; }
+
+  /* ============================================================
+     TABS
+  ============================================================ */
+  .tab-bar{
+    display:flex;
+    gap:8px;
+    margin-bottom:22px;
+    flex-wrap:wrap;
+    border-bottom:1px solid var(--border-soft);
+    padding-bottom: 2px;
+  }
+
+  .tab-btn{
+    background:transparent;
+    border:none;
+    color: var(--text-dim);
+    padding: 10px 16px;
+    font-weight:600;
+    font-size:14px;
+    cursor:pointer;
+    border-bottom: 3px solid transparent;
+    transition: color 0.2s ease, border-color 0.2s ease;
+  }
+
+  .tab-btn.active{
+    color: var(--emerald);
+    border-bottom-color: var(--emerald);
+  }
+
+  .tab-btn .badge-count{
+    background: var(--bg-panel-light);
+    color: var(--text-dim);
+    font-size:11px;
+    padding: 1px 7px;
+    border-radius: 999px;
+    margin-left:6px;
+  }
+
+  .view{ display:none; animation: fadeIn 0.25s ease; }
+  .view.active{ display:block; }
+
+  @keyframes fadeIn{
+    from{ opacity:0; transform: translateY(6px); }
+    to{ opacity:1; transform: translateY(0); }
+  }
+
+  /* ============================================================
+     CARDS / PANELS
+  ============================================================ */
+  .panel{
+    background: var(--bg-panel);
+    border:1px solid var(--border-soft);
+    border-radius: var(--radius);
+    padding: 22px;
+    box-shadow: var(--shadow);
+  }
+
+  .panel + .panel{ margin-top:20px; }
+
+  .panel h2{
+    margin:0 0 4px;
+    font-size:18px;
+  }
+  .panel .sub{
+    color: var(--text-dim);
+    font-size:13px;
+    margin:0 0 18px;
+  }
+
+  .grid-2{
+    display:grid;
+    grid-template-columns: 1fr 1fr;
+    gap:16px;
+  }
+
+  .grid-3{
+    display:grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap:16px;
+  }
+
+  @media (max-width: 780px){
+    .grid-2, .grid-3{ grid-template-columns: 1fr; }
+  }
+
+  .field{
+    display:flex;
+    flex-direction:column;
+    gap:6px;
+    margin-bottom:14px;
+  }
+
+  .field label{
+    font-size:12px;
+    font-weight:600;
+    color: var(--text-dim);
+    text-transform:uppercase;
+    letter-spacing:0.4px;
+  }
+
+  input[type="text"], input[type="number"], input[type="date"], select, textarea{
+    background: var(--bg-deep);
+    border:1px solid var(--border-soft);
+    border-radius:10px;
+    padding:11px 12px;
+    color: var(--text-main);
+    font-size:14px;
+    outline:none;
+    transition: border-color 0.2s ease;
+    width:100%;
+  }
+  input:focus, select:focus, textarea:focus{ border-color: var(--emerald); }
+
+  textarea{ resize:vertical; min-height:70px; }
+
+  .chip-select{
+    display:flex;
+    flex-wrap:wrap;
+    gap:8px;
+  }
+
+  .chip{
+    padding: 8px 14px;
+    border-radius: 999px;
+    border:1px solid var(--border-soft);
+    background: var(--bg-deep);
+    color: var(--text-dim);
+    font-size:12.5px;
+    font-weight:600;
+    cursor:pointer;
+    user-select:none;
+    transition: all 0.15s ease;
+  }
+
+  .chip:hover{ border-color: var(--cyan); }
+
+  .chip.selected{
+    background: rgba(6,182,212,0.15);
+    border-color: var(--cyan);
+    color: var(--cyan);
+  }
+
+  .chip.selected.cause{
+    background: rgba(16,185,129,0.15);
+    border-color: var(--emerald);
+    color: var(--emerald);
+  }
+
+  /* ============================================================
+     STAT CARDS (IMPACT DASHBOARD)
+  ============================================================ */
+  .stat-card{
+    background: linear-gradient(160deg, var(--bg-panel), var(--bg-panel-light));
+    border:1px solid var(--border-soft);
+    border-radius: var(--radius);
+    padding: 20px;
+    position:relative;
+    overflow:hidden;
+  }
+
+  .stat-card .stat-icon{
+    font-size:26px;
+    margin-bottom:8px;
+  }
+
+  .stat-card .stat-value{
+    font-size:30px;
+    font-weight:800;
+    color: var(--emerald);
+    line-height:1.1;
+  }
+
+  .stat-card .stat-label{
+    color: var(--text-dim);
+    font-size:13px;
+    margin-top:4px;
+  }
+
+  .stat-card.gold .stat-value{ color: var(--gold); }
+  .stat-card.cyan .stat-value{ color: var(--cyan); }
+
+  /* ============================================================
+     OPPORTUNITY CARDS
+  ============================================================ */
+  .opp-list{
+    display:grid;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap:18px;
+    margin-top: 6px;
+  }
+
+  .opp-card{
+    background: var(--bg-panel);
+    border:1px solid var(--border-soft);
+    border-radius: var(--radius);
+    padding: 18px;
+    display:flex;
+    flex-direction:column;
+    gap:10px;
+    position:relative;
+    transition: transform 0.15s ease, border-color 0.15s ease;
+  }
+
+  .opp-card:hover{
+    transform: translateY(-3px);
+    border-color: var(--emerald);
+  }
+
+  .opp-card.featured{
+    border-color: var(--gold);
+    box-shadow: 0 0 0 1px rgba(245,158,11,0.25);
+  }
+
+  .opp-card .featured-tag{
+    position:absolute;
+    top:-10px;
+    right:14px;
+    background: var(--gold);
+    color:#241300;
+    font-size:10.5px;
+    font-weight:800;
+    padding:4px 10px;
+    border-radius:999px;
+    letter-spacing:0.4px;
+    box-shadow: 0 3px 10px rgba(245,158,11,0.4);
+  }
+
+  .opp-top{
+    display:flex;
+    justify-content:space-between;
+    align-items:flex-start;
+    gap:10px;
+  }
+
+  .opp-title{
+    font-size:16px;
+    font-weight:700;
+    margin:0;
+  }
+
+  .opp-org{
+    color: var(--text-dim);
+    font-size:12.5px;
+    margin-top:2px;
+  }
+
+  .match-badge{
+    flex-shrink:0;
+    background: rgba(16,185,129,0.15);
+    border:1px solid var(--emerald);
+    color: var(--emerald);
+    font-weight:800;
+    font-size:13px;
+    padding: 6px 10px;
+    border-radius:10px;
+    text-align:center;
+    min-width:58px;
+  }
+
+  .match-badge small{
+    display:block;
+    font-size:8.5px;
+    font-weight:600;
+    letter-spacing:0.3px;
+    color: var(--emerald);
+    opacity:0.8;
+  }
+
+  .opp-meta{
+    display:flex;
+    flex-wrap:wrap;
+    gap:10px;
+    font-size:12.5px;
+    color: var(--text-dim);
+  }
+
+  .opp-meta span{
+    display:flex;
+    align-items:center;
+    gap:5px;
+  }
+
+  .cause-tag{
+    display:inline-block;
+    background: rgba(16,185,129,0.12);
+    color: var(--emerald);
+    border:1px solid rgba(16,185,129,0.35);
+    font-size:11px;
+    font-weight:700;
+    padding:3px 9px;
+    border-radius:999px;
+    width:fit-content;
+  }
+
+  .skill-badges{
+    display:flex;
+    flex-wrap:wrap;
+    gap:6px;
+  }
+
+  .skill-badge{
+    background: rgba(6,182,212,0.12);
+    color: var(--cyan);
+    border:1px solid rgba(6,182,212,0.35);
+    font-size:10.5px;
+    font-weight:700;
+    padding:3px 8px;
+    border-radius:6px;
+  }
+
+  .opp-footer{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    margin-top:6px;
+    gap:10px;
+    flex-wrap:wrap;
+  }
+
+  .spots{
+    font-size:12px;
+    color: var(--text-dim);
+  }
+  .spots b{ color: var(--text-main); }
+
+  .empty-state{
+    text-align:center;
+    padding: 50px 20px;
+    color: var(--text-dim);
+  }
+  .empty-state .icon{ font-size:40px; margin-bottom:10px; }
+
+  /* ============================================================
+     FILTER BAR
+  ============================================================ */
+  .filter-bar{
+    display:flex;
+    flex-wrap:wrap;
+    gap:10px;
+    margin-bottom:18px;
+    align-items:center;
+  }
+
+  .filter-bar select, .filter-bar input{
+    width:auto;
+    min-width:160px;
+  }
+
+  /* ============================================================
+     TABLE (Organizer volunteer roster)
+  ============================================================ */
+  table{
+    width:100%;
+    border-collapse: collapse;
+    font-size:13px;
+  }
+  th, td{
+    text-align:left;
+    padding:10px 12px;
+    border-bottom: 1px solid var(--border-soft);
+  }
+  th{
+    color: var(--text-dim);
+    text-transform:uppercase;
+    font-size:11px;
+    letter-spacing:0.4px;
+  }
+
+  .status-pill{
+    padding:3px 10px;
+    border-radius:999px;
+    font-size:11px;
+    font-weight:700;
+    display:inline-block;
+  }
+  .status-pending{ background: rgba(245,158,11,0.15); color: var(--gold); border:1px solid rgba(245,158,11,0.4); }
+  .status-completed{ background: rgba(16,185,129,0.15); color: var(--emerald); border:1px solid rgba(16,185,129,0.4); }
+
+  /* ============================================================
+     MODAL / TOAST
+  ============================================================ */
+  .toast{
+    position:fixed;
+    bottom:24px;
+    left:50%;
+    transform: translateX(-50%) translateY(20px);
+    background: var(--bg-panel-light);
+    border:1px solid var(--emerald);
+    color: var(--text-main);
+    padding: 13px 22px;
+    border-radius: 12px;
+    font-size:13.5px;
+    font-weight:600;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.5);
+    opacity:0;
+    pointer-events:none;
+    transition: all 0.3s ease;
+    z-index: 999;
+  }
+  .toast.show{
+    opacity:1;
+    transform: translateX(-50%) translateY(0);
+    pointer-events:auto;
+  }
+
+  .empty-org-card{
+    color:var(--text-dim);
+    font-size:13px;
+  }
+
+  .divider{
+    height:1px;
+    background: var(--border-soft);
+    margin: 20px 0;
+  }
+
+  .profile-summary{
+    display:flex;
+    flex-wrap:wrap;
+    gap:8px;
+    margin-top:10px;
+  }
+
+  .small-note{
+    font-size:11.5px;
+    color: var(--text-dim);
+    margin-top:6px;
+  }
+
+  ::-webkit-scrollbar{ width:9px; height:9px; }
+  ::-webkit-scrollbar-track{ background: var(--bg-deep); }
+  ::-webkit-scrollbar-thumb{ background: var(--border-soft); border-radius:10px; }
+  ::-webkit-scrollbar-thumb:hover{ background: var(--emerald-dark); }
+
+  footer.app-footer{
+    text-align:center;
+    color: var(--text-dim);
+    font-size:12px;
+    margin-top:50px;
+    padding-top:20px;
+    border-top:1px solid var(--border-soft);
+  }
+</style>
+</head>
+<body>
+
+<div class="app-shell">
+
+  <!-- ============================================================
+       HEADER
+  ============================================================ -->
+  <header class="top-bar">
+    <div class="brand">
+      <div class="brand-icon">🤝</div>
+      <div>
+        <h1>VolunteerMatch</h1>
+        <span>Smart Volunteer &amp; Cause Matcher</span>
+      </div>
+    </div>
+
+    <div class="role-toggle">
+      <button id="roleVolunteerBtn" class="active" onclick="setRole('volunteer')">👤 Volunteer</button>
+      <button id="roleOrgBtn" onclick="setRole('organization')">🏢 Organization</button>
+    </div>
+
+    <div class="header-actions">
+      <button class="btn btn-ghost btn-sm" onclick="exportData()">⬇ Export</button>
+      <label class="btn btn-ghost btn-sm" style="cursor:pointer;">
+        ⬆ Import
+        <input type="file" accept="application/json" id="importFile" style="display:none" onchange="importData(event)">
+      </label>
+    </div>
+  </header>
+
+  <!-- ============================================================
+       VOLUNTEER MODE
+  ============================================================ -->
+  <div id="volunteerMode">
+
+    <div class="tab-bar">
+      <button class="tab-btn active" data-tab="v-profile" onclick="switchTab('v-profile')">My Profile</button>
+      <button class="tab-btn" data-tab="v-recommended" onclick="switchTab('v-recommended')">Recommended For You <span class="badge-count" id="recCount">0</span></button>
+      <button class="tab-btn" data-tab="v-browse" onclick="switchTab('v-browse')">Browse All Opportunities</button>
+      <button class="tab-btn" data-tab="v-mysignups" onclick="switchTab('v-mysignups')">My Sign-Ups <span class="badge-count" id="signupCount">0</span></button>
+      <button class="tab-btn" data-tab="v-dashboard" onclick="switchTab('v-dashboard')">Impact Dashboard</button>
+    </div>
+
+    <!-- PROFILE -->
+    <div class="view active" id="v-profile">
+      <div class="panel">
+        <h2>Volunteer Profile</h2>
+        <p class="sub">Tell us about yourself so we can match you with the right opportunities.</p>
+
+        <div class="grid-2">
+          <div class="field">
+            <label>Full Name</label>
+            <input type="text" id="volName" placeholder="e.g. Jasmine Reyes">
+          </div>
+          <div class="field">
+            <label>Email / Contact</label>
+            <input type="text" id="volContact" placeholder="e.g. jasmine@email.com">
+          </div>
+        </div>
+
+        <div class="field">
+          <label>Available Days</label>
+          <div class="chip-select" id="volDays">
+            <div class="chip" data-value="Monday">Monday</div>
+            <div class="chip" data-value="Tuesday">Tuesday</div>
+            <div class="chip" data-value="Wednesday">Wednesday</div>
+            <div class="chip" data-value="Thursday">Thursday</div>
+            <div class="chip" data-value="Friday">Friday</div>
+            <div class="chip" data-value="Saturday">Saturday</div>
+            <div class="chip" data-value="Sunday">Sunday</div>
+          </div>
+        </div>
+
+        <div class="field">
+          <label>Skills</label>
+          <div class="chip-select" id="volSkills">
+            <div class="chip" data-value="Teaching">Teaching</div>
+            <div class="chip" data-value="Logistics">Logistics</div>
+            <div class="chip" data-value="Web Design">Web Design</div>
+            <div class="chip" data-value="First Aid">First Aid</div>
+            <div class="chip" data-value="Photography">Photography</div>
+            <div class="chip" data-value="Public Speaking">Public Speaking</div>
+            <div class="chip" data-value="Cooking">Cooking</div>
+            <div class="chip" data-value="Fundraising">Fundraising</div>
+            <div class="chip" data-value="Translation">Translation</div>
+            <div class="chip" data-value="IT Support">IT Support</div>
+            <div class="chip" data-value="Manual Labor">Manual Labor</div>
+            <div class="chip" data-value="Animal Care">Animal Care</div>
+          </div>
+        </div>
+
+        <div class="field">
+          <label>Preferred Causes</label>
+          <div class="chip-select" id="volCauses">
+            <div class="chip cause" data-value="Education">Education</div>
+            <div class="chip cause" data-value="Environment">Environment</div>
+            <div class="chip cause" data-value="Tech Support">Tech Support</div>
+            <div class="chip cause" data-value="Animal Welfare">Animal Welfare</div>
+            <div class="chip cause" data-value="Event Staff">Event Staff</div>
+            <div class="chip cause" data-value="Health">Health</div>
+            <div class="chip cause" data-value="Disaster Relief">Disaster Relief</div>
+            <div class="chip cause" data-value="Community Development">Community Development</div>
+          </div>
+        </div>
+
+        <button class="btn btn-primary" onclick="saveVolunteerProfile()">💾 Save Profile</button>
+        <div id="profileSavedNote" class="small-note"></div>
+      </div>
+    </div>
+
+    <!-- RECOMMENDED -->
+    <div class="view" id="v-recommended">
+      <div class="panel">
+        <h2>Recommended For You</h2>
+        <p class="sub">Opportunities ranked by how closely they match your skills, causes, and availability.</p>
+        <div class="opp-list" id="recommendedList"></div>
+      </div>
+    </div>
+
+    <!-- BROWSE ALL -->
+    <div class="view" id="v-browse">
+      <div class="panel">
+        <h2>Browse All Opportunities</h2>
+        <p class="sub">Search and filter every opportunity currently posted.</p>
+
+        <div class="filter-bar">
+          <input type="text" id="browseSearch" placeholder="🔍 Search by title or org..." oninput="renderBrowseList()">
+          <select id="browseCauseFilter" onchange="renderBrowseList()">
+            <option value="">All Causes</option>
+            <option value="Education">Education</option>
+            <option value="Environment">Environment</option>
+            <option value="Tech Support">Tech Support</option>
+            <option value="Animal Welfare">Animal Welfare</option>
+            <option value="Event Staff">Event Staff</option>
+            <option value="Health">Health</option>
+            <option value="Disaster Relief">Disaster Relief</option>
+            <option value="Community Development">Community Development</option>
+          </select>
+        </div>
+
+        <div class="opp-list" id="browseList"></div>
+      </div>
+    </div>
+
+    <!-- MY SIGNUPS -->
+    <div class="view" id="v-mysignups">
+      <div class="panel">
+        <h2>My Sign-Ups</h2>
+        <p class="sub">Opportunities you've volunteered for and their status.</p>
+        <div class="opp-list" id="mySignupsList"></div>
+      </div>
+    </div>
+
+    <!-- DASHBOARD -->
+    <div class="view" id="v-dashboard">
+      <div class="panel">
+        <h2>Impact Dashboard</h2>
+        <p class="sub">Your real-time contribution summary.</p>
+        <div class="grid-3">
+          <div class="stat-card">
+            <div class="stat-icon">⏱️</div>
+            <div class="stat-value" id="statHours">0</div>
+            <div class="stat-label">Total Hours Contributed</div>
+          </div>
+          <div class="stat-card cyan">
+            <div class="stat-icon">📅</div>
+            <div class="stat-value" id="statEvents">0</div>
+            <div class="stat-label">Events Joined</div>
+          </div>
+          <div class="stat-card gold">
+            <div class="stat-icon">🏢</div>
+            <div class="stat-value" id="statOrgs">0</div>
+            <div class="stat-label">Organizations Supported</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ============================================================
+       ORGANIZATION MODE
+  ============================================================ -->
+  <div id="orgMode" style="display:none;">
+
+    <div class="tab-bar">
+      <button class="tab-btn active" data-tab="o-post" onclick="switchTab('o-post')">Post Opportunity</button>
+      <button class="tab-btn" data-tab="o-manage" onclick="switchTab('o-manage')">Manage My Postings</button>
+      <button class="tab-btn" data-tab="o-roster" onclick="switchTab('o-roster')">Volunteer Roster</button>
+    </div>
+
+    <!-- POST OPPORTUNITY -->
+    <div class="view active" id="o-post">
+      <div class="panel">
+        <h2>Post a Volunteer Opportunity</h2>
+        <p class="sub">Fill out the details below to publish a new opportunity for volunteers to discover.</p>
+
+        <div class="grid-2">
+          <div class="field">
+            <label>Event Title</label>
+            <input type="text" id="oppTitle" placeholder="e.g. Beach Cleanup Drive">
+          </div>
+          <div class="field">
+            <label>Organization Name</label>
+            <input type="text" id="oppOrg" placeholder="e.g. Green Coast Alliance">
+          </div>
+        </div>
+
+        <div class="grid-2">
+          <div class="field">
+            <label>Category / Cause</label>
+            <select id="oppCause">
+              <option value="Education">Education</option>
+              <option value="Environment">Environment</option>
+              <option value="Tech Support">Tech Support</option>
+              <option value="Animal Welfare">Animal Welfare</option>
+              <option value="Event Staff">Event Staff</option>
+              <option value="Health">Health</option>
+              <option value="Disaster Relief">Disaster Relief</option>
+              <option value="Community Development">Community Development</option>
+            </select>
+          </div>
+          <div class="field">
+            <label>Volunteers Needed</label>
+            <input type="number" id="oppSlots" min="1" value="5">
+          </div>
+        </div>
+
+        <div class="grid-2">
+          <div class="field">
+            <label>Date</label>
+            <input type="date" id="oppDate">
+          </div>
+          <div class="field">
+            <label>Location</label>
+            <input type="text" id="oppLocation" placeholder="e.g. Manila Bay, Roxas Blvd">
+          </div>
+        </div>
+
+        <div class="field">
+          <label>Required Skills</label>
+          <div class="chip-select" id="oppSkills">
+            <div class="chip" data-value="Teaching">Teaching</div>
+            <div class="chip" data-value="Logistics">Logistics</div>
+            <div class="chip" data-value="Web Design">Web Design</div>
+            <div class="chip" data-value="First Aid">First Aid</div>
+            <div class="chip" data-value="Photography">Photography</div>
+            <div class="chip" data-value="Public Speaking">Public Speaking</div>
+            <div class="chip" data-value="Cooking">Cooking</div>
+            <div class="chip" data-value="Fundraising">Fundraising</div>
+            <div class="chip" data-value="Translation">Translation</div>
+            <div class="chip" data-value="IT Support">IT Support</div>
+            <div class="chip" data-value="Manual Labor">Manual Labor</div>
+            <div class="chip" data-value="Animal Care">Animal Care</div>
+          </div>
+        </div>
+
+        <div class="field">
+          <label>Preferred Volunteer Days</label>
+          <div class="chip-select" id="oppDays">
+            <div class="chip" data-value="Monday">Monday</div>
+            <div class="chip" data-value="Tuesday">Tuesday</div>
+            <div class="chip" data-value="Wednesday">Wednesday</div>
+            <div class="chip" data-value="Thursday">Thursday</div>
+            <div class="chip" data-value="Friday">Friday</div>
+            <div class="chip" data-value="Saturday">Saturday</div>
+            <div class="chip" data-value="Sunday">Sunday</div>
+          </div>
+        </div>
+
+        <div class="field">
+          <label>Estimated Hours Per Volunteer</label>
+          <input type="number" id="oppHours" min="1" value="4">
+        </div>
+
+        <div class="field">
+          <label>Short Description</label>
+          <textarea id="oppDesc" placeholder="Briefly describe the opportunity..."></textarea>
+        </div>
+
+        <div class="field" style="flex-direction:row; align-items:center; gap:10px;">
+          <input type="checkbox" id="oppFeatured" style="width:auto;">
+          <label style="text-transform:none; font-size:13px; margin:0;">Mark as Featured Opportunity ⭐</label>
+        </div>
+
+        <button class="btn btn-gold" onclick="postOpportunity()">📢 Post Opportunity</button>
+        <div id="postSavedNote" class="small-note"></div>
+      </div>
+    </div>
+
+    <!-- MANAGE POSTINGS -->
+    <div class="view" id="o-manage">
+      <div class="panel">
+        <h2>Manage My Postings</h2>
+        <p class="sub">Edit, remove, or review all opportunities you've published.</p>
+        <div class="opp-list" id="orgPostingsList"></div>
+      </div>
+    </div>
+
+    <!-- VOLUNTEER ROSTER -->
+    <div class="view" id="o-roster">
+      <div class="panel">
+        <h2>Volunteer Roster</h2>
+        <p class="sub">Review sign-ups per opportunity and mark hours as completed.</p>
+        <div id="rosterContainer"></div>
+      </div>
+    </div>
+
+  </div>
+
+  <footer class="app-footer">
+    VolunteerMatch — connecting willing hands with worthy causes. Data is stored locally in your browser.
+  </footer>
+
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+/* ================================================================
+   VOLUNTEERMATCH — CORE APPLICATION LOGIC
+   All data is persisted in localStorage. No backend, no build step.
+================================================================ */
+
+const STORAGE_KEYS = {
+  volunteer: 'vm_volunteer_profile',
+  opportunities: 'vm_opportunities',
+  signups: 'vm_signups'
+};
+
+// ----------------------------------------------------------------
+// APP STATE
+// ----------------------------------------------------------------
+let currentRole = 'volunteer';
+
+let volunteerProfile = loadFromStorage(STORAGE_KEYS.volunteer, {
+  name: '', contact: '', days: [], skills: [], causes: []
+});
+
+let opportunities = loadFromStorage(STORAGE_KEYS.opportunities, []);
+let signups = loadFromStorage(STORAGE_KEYS.signups, []);
+
+// ----------------------------------------------------------------
+// STORAGE HELPERS
+// ----------------------------------------------------------------
+function loadFromStorage(key, fallback){
+  try{
+    const raw = localStorage.getItem(key);
+    return raw ? JSON.parse(raw) : fallback;
+  }catch(e){
+    console.error('Failed to load', key, e);
+    return fallback;
+  }
+}
+
+function saveToStorage(key, data){
+  localStorage.setItem(key, JSON.stringify(data));
+}
+
+function persistAll(){
+  saveToStorage(STORAGE_KEYS.volunteer, volunteerProfile);
+  saveToStorage(STORAGE_KEYS.opportunities, opportunities);
+  saveToStorage(STORAGE_KEYS.signups, signups);
+}
+
+// ----------------------------------------------------------------
+// TOAST NOTIFICATION
+// ----------------------------------------------------------------
+let toastTimer = null;
+function showToast(message){
+  const toast = document.getElementById('toast');
+  toast.textContent = message;
+  toast.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => toast.classList.remove('show'), 2600);
+}
+
+// ----------------------------------------------------------------
+// ROLE SWITCHING
+// ----------------------------------------------------------------
+function setRole(role){
+  currentRole = role;
+  document.getElementById('roleVolunteerBtn').classList.toggle('active', role === 'volunteer');
+  document.getElementById('roleOrgBtn').classList.toggle('active', role === 'organization');
+  document.getElementById('volunteerMode').style.display = role === 'volunteer' ? 'block' : 'none';
+  document.getElementById('orgMode').style.display = role === 'organization' ? 'block' : 'none';
+
+  if(role === 'volunteer'){
+    renderRecommended();
+    renderBrowseList();
+    renderMySignups();
+    renderDashboard();
+  } else {
+    renderOrgPostings();
+    renderRoster();
+  }
+}
+
+// ----------------------------------------------------------------
+// TAB SWITCHING
+// ----------------------------------------------------------------
+function switchTab(tabId){
+  const container = document.getElementById(tabId).closest('#volunteerMode, #orgMode');
+  container.querySelectorAll('.tab-btn').forEach(btn => {
+    btn.classList.toggle('active', btn.dataset.tab === tabId);
+  });
+  container.querySelectorAll('.view').forEach(view => {
+    view.classList.toggle('active', view.id === tabId);
+  });
+
+  // Refresh relevant data when a tab is opened
+  if(tabId === 'v-recommended') renderRecommended();
+  if(tabId === 'v-browse') renderBrowseList();
+  if(tabId === 'v-mysignups') renderMySignups();
+  if(tabId === 'v-dashboard') renderDashboard();
+  if(tabId === 'o-manage') renderOrgPostings();
+  if(tabId === 'o-roster') renderRoster();
+}
+
+// ----------------------------------------------------------------
+// CHIP SELECTOR UTILITIES
+// ----------------------------------------------------------------
+function initChipGroup(containerId){
+  const container = document.getElementById(containerId);
+  container.querySelectorAll('.chip').forEach(chip => {
+    chip.addEventListener('click', () => chip.classList.toggle('selected'));
+  });
+}
+
+function getSelectedChips(containerId){
+  return Array.from(document.querySelectorAll(`#${containerId} .chip.selected`)).map(c => c.dataset.value);
+}
+
+function setSelectedChips(containerId, values){
+  document.querySelectorAll(`#${containerId} .chip`).forEach(chip => {
+    chip.classList.toggle('selected', values.includes(chip.dataset.value));
+  });
+}
+
+['volDays','volSkills','volCauses','oppSkills','oppDays'].forEach(initChipGroup);
+
+// ----------------------------------------------------------------
+// VOLUNTEER PROFILE
+// ----------------------------------------------------------------
+function loadVolunteerProfileIntoForm(){
+  document.getElementById('volName').value = volunteerProfile.name || '';
+  document.getElementById('volContact').value = volunteerProfile.contact || '';
+  setSelectedChips('volDays', volunteerProfile.days || []);
+  setSelectedChips('volSkills', volunteerProfile.skills || []);
+  setSelectedChips('volCauses', volunteerProfile.causes || []);
+}
+
+function saveVolunteerProfile(){
+  const name = document.getElementById('volName').value.trim();
+  if(!name){
+    showToast('⚠️ Please enter your name before saving.');
+    return;
+  }
+
+  volunteerProfile = {
+    name: name,
+    contact: document.getElementById('volContact').value.trim(),
+    days: getSelectedChips('volDays'),
+    skills: getSelectedChips('volSkills'),
+    causes: getSelectedChips('volCauses')
+  };
+
+  persistAll();
+  document.getElementById('profileSavedNote').textContent = '✅ Profile saved successfully.';
+  setTimeout(() => document.getElementById('profileSavedNote').textContent = '', 3000);
+  showToast('Profile saved!');
+
+  renderRecommended();
+  renderDashboard();
+}
+
+// ----------------------------------------------------------------
+// SMART MATCHING ALGORITHM
+// ----------------------------------------------------------------
+// Scoring weights: skills overlap 50%, cause match 35%, day overlap 15%
+function calculateMatchScore(opportunity, profile){
+  if(!profile.skills.length && !profile.causes.length && !profile.days.length){
+    return 0;
+  }
+
+  // Skill match: fraction of the opportunity's required skills the volunteer has
+  let skillScore = 0;
+  if(opportunity.skills.length > 0){
+    const matchedSkills = opportunity.skills.filter(s => profile.skills.includes(s));
+    skillScore = matchedSkills.length / opportunity.skills.length;
+  }
+
+  // Cause match: binary — does the volunteer care about this cause?
+  const causeScore = profile.causes.includes(opportunity.cause) ? 1 : 0;
+
+  // Day match: fraction of opportunity's preferred days that overlap with volunteer availability
+  let dayScore = 0;
+  if(opportunity.days && opportunity.days.length > 0){
+    const matchedDays = opportunity.days.filter(d => profile.days.includes(d));
+    dayScore = matchedDays.length / opportunity.days.length;
+  } else {
+    dayScore = 0.5; // neutral if organizer didn't specify days
+  }
+
+  const finalScore = (skillScore * 0.50) + (causeScore * 0.35) + (dayScore * 0.15);
+  return Math.round(finalScore * 100);
+}
+
+// ----------------------------------------------------------------
+// RENDER: OPPORTUNITY CARD (shared by recommended + browse views)
+// ----------------------------------------------------------------
+function buildOpportunityCard(opp, options = {}){
+  const showMatch = options.showMatch !== false;
+  const matchScore = showMatch ? calculateMatchScore(opp, volunteerProfile) : null;
+  const alreadySignedUp = signups.some(s => s.oppId === opp.id && s.volunteerName === volunteerProfile.name);
+  const spotsLeft = opp.slots - signups.filter(s => s.oppId === opp.id).length;
+
+  const card = document.createElement('div');
+  card.className = 'opp-card' + (opp.featured ? ' featured' : '');
+
+  card.innerHTML = `
+    ${opp.featured ? '<div class="featured-tag">⭐ FEATURED</div>' : ''}
+    <div class="opp-top">
+      <div>
+        <p class="opp-title">${escapeHtml(opp.title)}</p>
+        <p class="opp-org">${escapeHtml(opp.org)}</p>
+      </div>
+      ${showMatch ? `<div class="match-badge">${matchScore}%<small>MATCH</small></div>` : ''}
+    </div>
+
+    <div class="cause-tag">${escapeHtml(opp.cause)}</div>
+
+    <div class="opp-meta">
+      <span>📅 ${opp.date ? escapeHtml(opp.date) : 'Flexible date'}</span>
+      <span>📍 ${escapeHtml(opp.location || 'Not specified')}</span>
+      <span>⏱️ ${opp.hours || 4} hrs</span>
+    </div>
+
+    ${opp.desc ? `<p style="font-size:13px; color:var(--text-dim); margin:0;">${escapeHtml(opp.desc)}</p>` : ''}
+
+    <div class="skill-badges">
+      ${opp.skills.map(s => `<span class="skill-badge">${escapeHtml(s)}</span>`).join('')}
+    </div>
+
+    <div class="opp-footer">
+      <span class="spots"><b>${Math.max(spotsLeft,0)}</b> / ${opp.slots} spots left</span>
+      ${alreadySignedUp
+        ? `<button class="btn btn-ghost btn-sm" disabled>✅ Signed Up</button>`
+        : `<button class="btn btn-primary btn-sm" onclick="signUp('${opp.id}')" ${spotsLeft <= 0 ? 'disabled' : ''}>${spotsLeft <= 0 ? 'Full' : '🙋 Sign Up / Volunteer'}</button>`
+      }
+    </div>
+  `;
+
+  return card;
+}
+
+function escapeHtml(str){
+  const div = document.createElement('div');
+  div.textContent = str == null ? '' : String(str);
+  return div.innerHTML;
+}
+
+// ----------------------------------------------------------------
+// RENDER: RECOMMENDED TAB
+// ----------------------------------------------------------------
+function renderRecommended(){
+  const list = document.getElementById('recommendedList');
+  list.innerHTML = '';
+
+  if(!volunteerProfile.name){
+    list.innerHTML = `<div class="empty-state" style="grid-column:1/-1;"><div class="icon">📝</div>Save your volunteer profile first to see personalized recommendations.</div>`;
+    document.getElementById('recCount').textContent = '0';
+    return;
+  }
+
+  const scored = opportunities
+    .map(opp => ({ opp, score: calculateMatchScore(opp, volunteerProfile) }))
+    .filter(item => item.score > 0)
+    .sort((a, b) => b.score - a.score)
+    .slice(0, 12);
+
+  document.getElementById('recCount').textContent = scored.length;
+
+  if(scored.length === 0){
+    list.innerHTML = `<div class="empty-state" style="grid-column:1/-1;"><div class="icon">🔎</div>No strong matches yet. Try adding more skills or causes to your profile, or check back once more opportunities are posted.</div>`;
+    return;
+  }
+
+  scored.forEach(item => list.appendChild(buildOpportunityCard(item.opp)));
+}
+
+// ----------------------------------------------------------------
+// RENDER: BROWSE ALL TAB
+// ----------------------------------------------------------------
+function renderBrowseList(){
+  const list = document.getElementById('browseList');
+  list.innerHTML = '';
+
+  const searchTerm = (document.getElementById('browseSearch').value || '').toLowerCase();
+  const causeFilter = document.getElementById('browseCauseFilter').value;
+
+  const filtered = opportunities.filter(opp => {
+    const matchesSearch = opp.title.toLowerCase().includes(searchTerm) || opp.org.toLowerCase().includes(searchTerm);
+    const matchesCause = !causeFilter || opp.cause === causeFilter;
+    return matchesSearch && matchesCause;
+  });
+
+  if(filtered.length === 0){
+    list.innerHTML = `<div class="empty-state" style="grid-column:1/-1;"><div class="icon">📭</div>No opportunities found. Try adjusting your filters.</div>`;
+    return;
+  }
+
+  filtered
+    .slice()
+    .sort((a,b) => (b.featured === a.featured) ? 0 : (b.featured ? 1 : -1))
+    .forEach(opp => list.appendChild(buildOpportunityCard(opp)));
+}
+
+// ----------------------------------------------------------------
+// RENDER: MY SIGN-UPS TAB
+// ----------------------------------------------------------------
+function renderMySignups(){
+  const list = document.getElementById('mySignupsList');
+  list.innerHTML = '';
+
+  const mine = signups.filter(s => s.volunteerName === volunteerProfile.name && volunteerProfile.name);
+  document.getElementById('signupCount').textContent = mine.length;
+
+  if(mine.length === 0){
+    list.innerHTML = `<div class="empty-state" style="grid-column:1/-1;"><div class="icon">🙋</div>You haven't signed up for anything yet. Check the Recommended tab!</div>`;
+    return;
+  }
+
+  mine.forEach(signup => {
+    const opp = opportunities.find(o => o.id === signup.oppId);
+    if(!opp) return;
+
+    const card = document.createElement('div');
+    card.className = 'opp-card';
+    card.innerHTML = `
+      <div class="opp-top">
+        <div>
+          <p class="opp-title">${escapeHtml(opp.title)}</p>
+          <p class="opp-org">${escapeHtml(opp.org)}</p>
+        </div>
+        <span class="status-pill ${signup.status === 'completed' ? 'status-completed' : 'status-pending'}">
+          ${signup.status === 'completed' ? '✅ Completed' : '⏳ Pending'}
+        </span>
+      </div>
+      <div class="cause-tag">${escapeHtml(opp.cause)}</div>
+      <div class="opp-meta">
+        <span>📅 ${opp.date ? escapeHtml(opp.date) : 'Flexible date'}</span>
+        <span>📍 ${escapeHtml(opp.location || 'Not specified')}</span>
+        <span>⏱️ ${opp.hours || 4} hrs</span>
+      </div>
+    `;
+    list.appendChild(card);
+  });
+}
+
+// ----------------------------------------------------------------
+// SIGN UP ACTION
+// ----------------------------------------------------------------
+function signUp(oppId){
+  if(!volunteerProfile.name){
+    showToast('⚠️ Please save your profile first.');
+    switchTab('v-profile');
+    document.querySelectorAll('#volunteerMode .tab-btn').forEach(b => b.classList.toggle('active', b.dataset.tab === 'v-profile'));
+    return;
+  }
+
+  const opp = opportunities.find(o => o.id === oppId);
+  if(!opp) return;
+
+  const spotsLeft = opp.slots - signups.filter(s => s.oppId === oppId).length;
+  if(spotsLeft <= 0){
+    showToast('This opportunity is already full.');
+    return;
+  }
+
+  const alreadySignedUp = signups.some(s => s.oppId === oppId && s.volunteerName === volunteerProfile.name);
+  if(alreadySignedUp){
+    showToast('You already signed up for this.');
+    return;
+  }
+
+  signups.push({
+    id: 'signup_' + Date.now() + '_' + Math.floor(Math.random()*1000),
+    oppId: oppId,
+    volunteerName: volunteerProfile.name,
+    volunteerContact: volunteerProfile.contact,
+    org: opp.org,
+    hours: opp.hours || 4,
+    status: 'pending', // pending | completed
+    signedUpAt: new Date().toISOString()
+  });
+
+  persistAll();
+  showToast(`🎉 Signed up for "${opp.title}"!`);
+
+  renderRecommended();
+  renderBrowseList();
+  renderMySignups();
+  renderDashboard();
+}
+
+// ----------------------------------------------------------------
+// RENDER: IMPACT DASHBOARD
+// ----------------------------------------------------------------
+function renderDashboard(){
+  const mine = signups.filter(s => s.volunteerName === volunteerProfile.name && volunteerProfile.name);
+
+  const totalHours = mine
+    .filter(s => s.status === 'completed')
+    .reduce((sum, s) => sum + (Number(s.hours) || 0), 0);
+
+  const eventsJoined = mine.length;
+
+  const orgsSupported = new Set(mine.map(s => s.org)).size;
+
+  document.getElementById('statHours').textContent = totalHours;
+  document.getElementById('statEvents').textContent = eventsJoined;
+  document.getElementById('statOrgs').textContent = orgsSupported;
+}
+
+// ----------------------------------------------------------------
+// ORGANIZATION: POST OPPORTUNITY
+// ----------------------------------------------------------------
+function postOpportunity(){
+  const title = document.getElementById('oppTitle').value.trim();
+  const org = document.getElementById('oppOrg').value.trim();
+
+  if(!title || !org){
+    showToast('⚠️ Event title and organization name are required.');
+    return;
+  }
+
+  const opportunity = {
+    id: 'opp_' + Date.now() + '_' + Math.floor(Math.random()*1000),
+    title: title,
+    org: org,
+    cause: document.getElementById('oppCause').value,
+    slots: parseInt(document.getElementById('oppSlots').value, 10) || 1,
+    date: document.getElementById('oppDate').value,
+    location: document.getElementById('oppLocation').value.trim(),
+    skills: getSelectedChips('oppSkills'),
+    days: getSelectedChips('oppDays'),
+    hours: parseInt(document.getElementById('oppHours').value, 10) || 4,
+    desc: document.getElementById('oppDesc').value.trim(),
+    featured: document.getElementById('oppFeatured').checked,
+    postedAt: new Date().toISOString()
+  };
+
+  opportunities.push(opportunity);
+  persistAll();
+
+  document.getElementById('postSavedNote').textContent = '✅ Opportunity posted successfully.';
+  setTimeout(() => document.getElementById('postSavedNote').textContent = '', 3000);
+  showToast('Opportunity posted!');
+
+  clearOpportunityForm();
+  renderOrgPostings();
+  renderRoster();
+}
+
+function clearOpportunityForm(){
+  document.getElementById('oppTitle').value = '';
+  document.getElementById('oppOrg').value = '';
+  document.getElementById('oppCause').selectedIndex = 0;
+  document.getElementById('oppSlots').value = 5;
+  document.getElementById('oppDate').value = '';
+  document.getElementById('oppLocation').value = '';
+  document.getElementById('oppHours').value = 4;
+  document.getElementById('oppDesc').value = '';
+  document.getElementById('oppFeatured').checked = false;
+  setSelectedChips('oppSkills', []);
+  setSelectedChips('oppDays', []);
+}
+
+// ----------------------------------------------------------------
+// ORGANIZATION: MANAGE POSTINGS
+// ----------------------------------------------------------------
+function renderOrgPostings(){
+  const list = document.getElementById('orgPostingsList');
+  list.innerHTML = '';
+
+  if(opportunities.length === 0){
+    list.innerHTML = `<div class="empty-state" style="grid-column:1/-1;"><div class="icon">📋</div>You haven't posted any opportunities yet.</div>`;
+    return;
+  }
+
+  opportunities.slice().reverse().forEach(opp => {
+    const signedUpCount = signups.filter(s => s.oppId === opp.id).length;
+
+    const card = document.createElement('div');
+    card.className = 'opp-card' + (opp.featured ? ' featured' : '');
+    card.innerHTML = `
+      ${opp.featured ? '<div class="featured-tag">⭐ FEATURED</div>' : ''}
+      <div class="opp-top">
+        <div>
+          <p class="opp-title">${escapeHtml(opp.title)}</p>
+          <p class="opp-org">${escapeHtml(opp.org)}</p>
+        </div>
+      </div>
+      <div class="cause-tag">${escapeHtml(opp.cause)}</div>
+      <div class="opp-meta">
+        <span>📅 ${opp.date ? escapeHtml(opp.date) : 'Flexible date'}</span>
+        <span>📍 ${escapeHtml(opp.location || 'Not specified')}</span>
+        <span>👥 ${signedUpCount}/${opp.slots} signed up</span>
+      </div>
+      <div class="skill-badges">
+        ${opp.skills.map(s => `<span class="skill-badge">${escapeHtml(s)}</span>`).join('')}
+      </div>
+      <div class="opp-footer">
+        <span class="spots">Posted ${new Date(opp.postedAt).toLocaleDateString()}</span>
+        <button class="btn btn-danger btn-sm" onclick="deleteOpportunity('${opp.id}')">🗑️ Remove</button>
+      </div>
+    `;
+    list.appendChild(card);
+  });
+}
+
+function deleteOpportunity(oppId){
+  if(!confirm('Remove this opportunity and all its sign-ups?')) return;
+  opportunities = opportunities.filter(o => o.id !== oppId);
+  signups = signups.filter(s => s.oppId !== oppId);
+  persistAll();
+  showToast('Opportunity removed.');
+  renderOrgPostings();
+  renderRoster();
+}
+
+// ----------------------------------------------------------------
+// ORGANIZATION: VOLUNTEER ROSTER + ATTENDANCE TRACKER
+// ----------------------------------------------------------------
+function renderRoster(){
+  const container = document.getElementById('rosterContainer');
+  container.innerHTML = '';
+
+  if(opportunities.length === 0){
+    container.innerHTML = `<div class="empty-state"><div class="icon">👥</div>Post an opportunity to start building your volunteer roster.</div>`;
+    return;
+  }
+
+  opportunities.slice().reverse().forEach(opp => {
+    const oppSignups = signups.filter(s => s.oppId === opp.id);
+
+    const wrapper = document.createElement('div');
+    wrapper.className = 'panel';
+    wrapper.style.marginBottom = '18px';
+
+    let rowsHtml = '';
+    if(oppSignups.length === 0){
+      rowsHtml = `<tr><td colspan="5" class="empty-org-card">No sign-ups yet for this opportunity.</td></tr>`;
+    } else {
+      rowsHtml = oppSignups.map(s => `
+        <tr>
+          <td>${escapeHtml(s.volunteerName)}</td>
+          <td>${escapeHtml(s.volunteerContact || '—')}</td>
+          <td>${s.hours} hrs</td>
+          <td><span class="status-pill ${s.status === 'completed' ? 'status-completed' : 'status-pending'}">${s.status === 'completed' ? '✅ Completed' : '⏳ Pending'}</span></td>
+          <td>
+            ${s.status === 'completed'
+              ? `<button class="btn btn-ghost btn-sm" onclick="toggleAttendance('${s.id}')">Undo</button>`
+              : `<button class="btn btn-primary btn-sm" onclick="toggleAttendance('${s.id}')">Mark Completed</button>`
+            }
+          </td>
+        </tr>
+      `).join('');
+    }
+
+    wrapper.innerHTML = `
+      <h2 style="font-size:15px; margin-bottom:2px;">${escapeHtml(opp.title)} <span style="color:var(--text-dim); font-weight:400; font-size:12.5px;">— ${escapeHtml(opp.org)}</span></h2>
+      <p class="sub" style="margin-bottom:12px;">${oppSignups.length} volunteer(s) signed up · ${opp.slots} spots total</p>
+      <table>
+        <thead>
+          <tr>
+            <th>Volunteer</th>
+            <th>Contact</th>
+            <th>Hours</th>
+            <th>Status</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody>${rowsHtml}</tbody>
+      </table>
+    `;
+
+    container.appendChild(wrapper);
+  });
+}
+
+function toggleAttendance(signupId){
+  const signup = signups.find(s => s.id === signupId);
+  if(!signup) return;
+  signup.status = signup.status === 'completed' ? 'pending' : 'completed';
+  persistAll();
+  renderRoster();
+  showToast(signup.status === 'completed' ? 'Marked as completed ✅' : 'Marked as pending ⏳');
+}
+
+// ----------------------------------------------------------------
+// EXPORT / IMPORT (JSON BACKUP)
+// ----------------------------------------------------------------
+function exportData(){
+  const backup = {
+    exportedAt: new Date().toISOString(),
+    volunteerProfile: volunteerProfile,
+    opportunities: opportunities,
+    signups: signups
+  };
+
+  const blob = new Blob([JSON.stringify(backup, null, 2)], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `volunteermatch-backup-${new Date().toISOString().slice(0,10)}.json`;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+
+  showToast('Backup exported!');
+}
+
+function importData(event){
+  const file = event.target.files[0];
+  if(!file) return;
+
+  const reader = new FileReader();
+  reader.onload = function(e){
+    try{
+      const data = JSON.parse(e.target.result);
+
+      if(!confirm('Importing will replace your current data. Continue?')) {
+        event.target.value = '';
+        return;
+      }
+
+      volunteerProfile = data.volunteerProfile || volunteerProfile;
+      opportunities = data.opportunities || opportunities;
+      signups = data.signups || signups;
+
+      persistAll();
+      loadVolunteerProfileIntoForm();
+
+      showToast('Backup imported successfully!');
+
+      if(currentRole === 'volunteer'){
+        renderRecommended();
+        renderBrowseList();
+        renderMySignups();
+        renderDashboard();
+      } else {
+        renderOrgPostings();
+        renderRoster();
+      }
+    }catch(err){
+      alert('Invalid backup file. Please select a valid VolunteerMatch export.');
+      console.error(err);
+    }
+    event.target.value = '';
+  };
+  reader.readAsText(file);
+}
+
+// ----------------------------------------------------------------
+// SAMPLE DATA SEEDING (only runs once, if no opportunities exist)
+// ----------------------------------------------------------------
+function seedSampleDataIfEmpty(){
+  if(opportunities.length > 0) return;
+
+  opportunities = [
+    {
+      id: 'opp_seed_1',
+      title: 'Weekend Reading Program for Kids',
+      org: 'Bright Minds Foundation',
+      cause: 'Education',
+      slots: 8,
+      date: '2026-09-12',
+      location: 'Barangay Hall, Cabuyao',
+      skills: ['Teaching', 'Public Speaking'],
+      days: ['Saturday', 'Sunday'],
+      hours: 3,
+      desc: 'Help run a weekend reading and literacy program for elementary school kids.',
+      featured: true,
+      postedAt: new Date().toISOString()
+    },
+    {
+      id: 'opp_seed_2',
+      title: 'Coastal Cleanup Drive',
+      org: 'Green Coast Alliance',
+      cause: 'Environment',
+      slots: 20,
+      date: '2026-09-19',
+      location: 'Laguna Lakeshore',
+      skills: ['Manual Labor', 'Logistics'],
+      days: ['Saturday'],
+      hours: 4,
+      desc: 'Join us in cleaning up the lakeshore and sorting recyclable waste.',
+      featured: false,
+      postedAt: new Date().toISOString()
+    },
+    {
+      id: 'opp_seed_3',
+      title: 'Community Website Revamp',
+      org: 'Barangay Digital Center',
+      cause: 'Tech Support',
+      slots: 3,
+      date: '2026-09-05',
+      location: 'Remote / Online',
+      skills: ['Web Design', 'IT Support'],
+      days: ['Monday', 'Wednesday', 'Friday'],
+      hours: 6,
+      desc: 'Help redesign the barangay information website for better accessibility.',
+      featured: true,
+      postedAt: new Date().toISOString()
+    },
+    {
+      id: 'opp_seed_4',
+      title: 'Shelter Animal Care Day',
+      org: 'Paws & Hearts Rescue',
+      cause: 'Animal Welfare',
+      slots: 10,
+      date: '2026-09-14',
+      location: 'Paws & Hearts Shelter',
+      skills: ['Animal Care', 'First Aid'],
+      days: ['Sunday'],
+      hours: 5,
+      desc: 'Assist with feeding, grooming, and basic care for shelter animals.',
+      featured: false,
+      postedAt: new Date().toISOString()
+    },
+    {
+      id: 'opp_seed_5',
+      title: 'Charity Fun Run — Registration Booth',
+      org: 'Cabuyao Runners Club',
+      cause: 'Event Staff',
+      slots: 12,
+      date: '2026-09-27',
+      location: 'City Sports Complex',
+      skills: ['Logistics', 'Public Speaking'],
+      days: ['Sunday'],
+      hours: 4,
+      desc: 'Manage registration, kit distribution, and crowd coordination for a charity run.',
+      featured: false,
+      postedAt: new Date().toISOString()
+    }
+  ];
+
+  persistAll();
+}
+
+// ----------------------------------------------------------------
+// INIT
+// ----------------------------------------------------------------
+function init(){
+  seedSampleDataIfEmpty();
+  loadVolunteerProfileIntoForm();
+
+  renderRecommended();
+  renderBrowseList();
+  renderMySignups();
+  renderDashboard();
+  renderOrgPostings();
+  renderRoster();
+}
+
+init();
+</script>
+
+</body>
+</html>
